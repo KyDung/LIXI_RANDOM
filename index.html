@@ -1,0 +1,686 @@
+﻿<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lì Xì May Mắn - Tết Vạn Lộc</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Nunito:wght@400;700&display=swap");
+
+      body {
+        font-family: "Nunito", sans-serif;
+        background-color: #8b0000; /* Dark Red */
+        background-image: url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%239c1818" fill-opacity="0.4"%3E%3Cpath d="M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');
+      }
+
+      .tet-font {
+        font-family: "Dancing Script", cursive;
+      }
+
+      .gold-text {
+        color: #ffd700;
+        text-shadow: 1px 1px 2px #000;
+      }
+
+      .envelope-container {
+        perspective: 1000px;
+      }
+
+      .envelope {
+        background: linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+        border: 2px solid #ffd700;
+      }
+
+      .btn-gold {
+        background: linear-gradient(to bottom, #ffd700, #ffa500);
+        color: #8b0000;
+        font-weight: bold;
+        border: 2px solid #fff;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        transition: all 0.2s;
+      }
+      .btn-gold:active {
+        transform: scale(0.95);
+      }
+      .btn-gold:disabled {
+        background: #ccc;
+        color: #666;
+        cursor: not-allowed;
+        border-color: #999;
+      }
+
+      /* Override hidden to ensure it works */
+      .hidden {
+        display: none !important;
+      }
+
+      /* Shake Animation */
+      @keyframes shake {
+        0% {
+          transform: translate(1px, 1px) rotate(0deg);
+        }
+        10% {
+          transform: translate(-1px, -2px) rotate(-1deg);
+        }
+        20% {
+          transform: translate(-3px, 0px) rotate(1deg);
+        }
+        30% {
+          transform: translate(3px, 2px) rotate(0deg);
+        }
+        40% {
+          transform: translate(1px, -1px) rotate(1deg);
+        }
+        50% {
+          transform: translate(-1px, 2px) rotate(-1deg);
+        }
+        60% {
+          transform: translate(-3px, 1px) rotate(0deg);
+        }
+        70% {
+          transform: translate(3px, 1px) rotate(-1deg);
+        }
+        80% {
+          transform: translate(-1px, -1px) rotate(1deg);
+        }
+        90% {
+          transform: translate(1px, 2px) rotate(0deg);
+        }
+        100% {
+          transform: translate(1px, -2px) rotate(-1deg);
+        }
+      }
+      .shaking {
+        animation: shake 0.5s;
+        animation-iteration-count: infinite;
+      }
+
+      /* Confetti Canvas */
+      #confetti {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 9999;
+      }
+
+      .modal-overlay {
+        background-color: rgba(0, 0, 0, 0.85);
+      }
+    </style>
+  </head>
+  <body
+    class="min-h-screen flex flex-col items-center justify-center p-4 text-white"
+  >
+    <canvas id="confetti"></canvas>
+
+    <!-- Header -->
+    <div class="text-center mb-6">
+      <h1 class="tet-font text-5xl md:text-7xl gold-text mb-2">
+        Lì Xì May Mắn
+      </h1>
+      <p class="text-yellow-200 text-lg">Chúc Mừng Năm Mới - Vạn Sự Như Ý</p>
+    </div>
+
+    <!-- Main Card -->
+    <div
+      class="envelope w-full max-w-md rounded-2xl p-6 relative overflow-hidden"
+    >
+      <!-- Decorative Circle -->
+      <div
+        class="absolute -top-10 -right-10 w-32 h-32 bg-yellow-500 opacity-20 rounded-full"
+      ></div>
+      <div
+        class="absolute -bottom-10 -left-10 w-32 h-32 bg-yellow-500 opacity-20 rounded-full"
+      ></div>
+
+      <!-- Tabs -->
+      <div class="flex space-x-2 mb-6 bg-red-900/50 p-1 rounded-lg">
+        <button
+          onclick="switchMode('range')"
+          id="tab-range"
+          class="flex-1 py-2 rounded-md font-bold transition-colors bg-yellow-500 text-red-900"
+        >
+          Theo Khoảng
+        </button>
+        <button
+          onclick="switchMode('list')"
+          id="tab-list"
+          class="flex-1 py-2 rounded-md font-bold transition-colors text-yellow-200 hover:bg-white/10"
+        >
+          Theo Danh Sách
+        </button>
+      </div>
+
+      <!-- Mode: Random Range -->
+      <div id="mode-range-content">
+        <div class="grid grid-cols-2 gap-4 mb-4">
+          <div>
+            <label class="block text-yellow-200 text-sm mb-1"
+              >Thấp nhất (VNĐ)</label
+            >
+            <input
+              type="number"
+              id="min-amount"
+              onchange="saveRangeSettings()"
+              value="10000"
+              step="1000"
+              class="w-full p-2 rounded bg-red-800 border border-yellow-600 text-white focus:outline-none focus:border-yellow-400 text-center font-bold"
+            />
+          </div>
+          <div>
+            <label class="block text-yellow-200 text-sm mb-1"
+              >Cao nhất (VNĐ)</label
+            >
+            <input
+              type="number"
+              id="max-amount"
+              onchange="saveRangeSettings()"
+              value="50000"
+              step="1000"
+              class="w-full p-2 rounded bg-red-800 border border-yellow-600 text-white focus:outline-none focus:border-yellow-400 text-center font-bold"
+            />
+          </div>
+        </div>
+        <p class="text-xs text-yellow-200/70 text-center mb-4">
+          *Số tiền sẽ được làm tròn đến hàng nghìn
+        </p>
+      </div>
+
+      <!-- Mode: Random List -->
+      <div id="mode-list-content" class="hidden">
+        <div class="flex gap-2 mb-2">
+          <input
+            type="number"
+            id="list-input-amount"
+            placeholder="Mệnh giá (VD: 50000)"
+            class="flex-1 p-2 rounded bg-red-800 border border-yellow-600 text-white placeholder-red-300 focus:outline-none"
+          />
+          <input
+            type="number"
+            id="list-input-qty"
+            value="1"
+            placeholder="SL"
+            class="w-20 p-2 rounded bg-red-800 border border-yellow-600 text-white placeholder-red-300 focus:outline-none text-center"
+          />
+          <button
+            onclick="addToList()"
+            class="bg-yellow-500 text-red-900 px-3 rounded font-bold hover:bg-yellow-400"
+          >
+            <i class="fas fa-plus"></i>
+          </button>
+        </div>
+
+        <!-- List Display -->
+        <div
+          class="bg-red-900/40 rounded-lg p-2 h-32 overflow-y-auto mb-4 border border-red-800"
+        >
+          <div id="items-container" class="space-y-1">
+            <p class="text-center text-gray-400 text-sm italic py-4">
+              Chưa có mệnh giá nào trong danh sách.
+            </p>
+          </div>
+        </div>
+        <div
+          class="flex justify-between items-center text-xs text-yellow-200 mb-2"
+        >
+          <span>Tổng bao: <strong id="total-envelopes">0</strong></span>
+          <button
+            type="button"
+            onclick="resetList()"
+            class="bg-red-900 text-red-200 hover:text-white hover:bg-red-800 px-3 py-2 rounded transition-colors border border-red-700 font-bold z-10 cursor-pointer shadow-md"
+          >
+            <i class="fas fa-trash-alt mr-1"></i> Xóa tất cả
+          </button>
+        </div>
+      </div>
+
+      <!-- Action Button -->
+      <div class="text-center mt-6">
+        <button
+          id="spin-btn"
+          onclick="startSpin()"
+          class="btn-gold w-full py-4 text-xl rounded-xl uppercase tracking-wider"
+        >
+          <i class="fas fa-gift mr-2"></i> Rút Lì Xì
+        </button>
+      </div>
+    </div>
+
+    <!-- Footer Credit -->
+    <div class="mt-8 text-yellow-200/50 text-sm">Sản phẩm cây nhà lá vườn</div>
+
+    <!-- Result Modal -->
+    <div
+      id="result-modal"
+      onclick="if (event.target === this) closeModal();"
+      class="fixed inset-0 modal-overlay hidden items-center justify-center z-50 px-4"
+    >
+      <div
+        class="bg-gradient-to-b from-red-600 to-red-800 p-1 rounded-2xl shadow-2xl w-full max-w-sm transform scale-95 transition-transform duration-300"
+        id="modal-content"
+      >
+        <div
+          class="bg-red-700 border-2 border-yellow-500 rounded-xl p-8 text-center relative overflow-hidden"
+        >
+          <!-- Background pattern -->
+          <div
+            class="absolute inset-0 opacity-10"
+            style="
+              background-image: radial-gradient(#ffd700 1px, transparent 1px);
+              background-size: 10px 10px;
+            "
+          ></div>
+
+          <h2 class="tet-font text-4xl text-yellow-400 mb-2">Chúc Mừng!</h2>
+          <p class="text-white mb-6">Bạn nhận được lì xì</p>
+
+          <div class="py-6 relative">
+            <i
+              class="fas fa-envelope-open-text text-6xl text-yellow-500 mb-4 animate-bounce"
+            ></i>
+            <div
+              id="result-amount"
+              class="text-4xl md:text-5xl font-extrabold text-white drop-shadow-lg"
+            >
+              0 VNĐ
+            </div>
+          </div>
+
+          <button
+            onclick="closeModal()"
+            class="mt-6 btn-gold px-8 py-2 rounded-full text-lg relative z-10 cursor-pointer"
+          >
+            Nhận Lộc
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // --- State Management ---
+      let currentMode = "range"; // 'range' or 'list'
+      let listItems = []; // Array of objects: { id, amount, quantity }
+      let isSpinning = false;
+
+      // --- Local Storage Keys ---
+      const KEY_LIST = "lixi_list_items";
+      const KEY_MIN = "lixi_range_min";
+      const KEY_MAX = "lixi_range_max";
+      const KEY_MODE = "lixi_last_mode";
+
+      // --- Init Function ---
+      function init() {
+        // Load Range Settings
+        try {
+          const savedMin = localStorage.getItem(KEY_MIN);
+          const savedMax = localStorage.getItem(KEY_MAX);
+          if (savedMin) document.getElementById("min-amount").value = savedMin;
+          if (savedMax) document.getElementById("max-amount").value = savedMax;
+
+          // Load List Data
+          const savedList = localStorage.getItem(KEY_LIST);
+          if (savedList) {
+            listItems = JSON.parse(savedList);
+          }
+        } catch (e) {
+          console.log("Storage init error (ignored)");
+        }
+        renderList();
+
+        // Load Last Mode
+        try {
+          const savedMode = localStorage.getItem(KEY_MODE);
+          if (savedMode && (savedMode === "range" || savedMode === "list")) {
+            switchMode(savedMode);
+          }
+        } catch (e) {}
+      }
+
+      // --- Save Functions (Safe) ---
+      function saveRangeSettings() {
+        try {
+          const min = document.getElementById("min-amount").value;
+          const max = document.getElementById("max-amount").value;
+          localStorage.setItem(KEY_MIN, min);
+          localStorage.setItem(KEY_MAX, max);
+        } catch (e) {}
+      }
+
+      function saveListData() {
+        try {
+          localStorage.setItem(KEY_LIST, JSON.stringify(listItems));
+        } catch (e) {
+          console.error("Cannot save list", e);
+        }
+      }
+
+      // --- Tab Switching ---
+      function switchMode(mode) {
+        currentMode = mode;
+        try {
+          localStorage.setItem(KEY_MODE, mode);
+        } catch (e) {}
+
+        const btnRange = document.getElementById("tab-range");
+        const btnList = document.getElementById("tab-list");
+        const contentRange = document.getElementById("mode-range-content");
+        const contentList = document.getElementById("mode-list-content");
+
+        if (mode === "range") {
+          btnRange.className =
+            "flex-1 py-2 rounded-md font-bold transition-colors bg-yellow-500 text-red-900";
+          btnList.className =
+            "flex-1 py-2 rounded-md font-bold transition-colors text-yellow-200 hover:bg-white/10";
+          contentRange.classList.remove("hidden");
+          contentList.classList.add("hidden");
+        } else {
+          btnList.className =
+            "flex-1 py-2 rounded-md font-bold transition-colors bg-yellow-500 text-red-900";
+          btnRange.className =
+            "flex-1 py-2 rounded-md font-bold transition-colors text-yellow-200 hover:bg-white/10";
+          contentList.classList.remove("hidden");
+          contentRange.classList.add("hidden");
+        }
+      }
+
+      // --- Format Currency ---
+      function formatMoney(amount) {
+        return new Intl.NumberFormat("vi-VN").format(amount) + " VNĐ";
+      }
+
+      // --- List Mode Logic ---
+      function addToList() {
+        const amountInput = document.getElementById("list-input-amount");
+        const qtyInput = document.getElementById("list-input-qty");
+
+        const amount = parseInt(amountInput.value);
+        const qty = parseInt(qtyInput.value);
+
+        if (!amount || amount <= 0) {
+          alert("Vui lòng nhập số tiền hợp lệ!");
+          return;
+        }
+        if (!qty || qty <= 0) {
+          alert("Số lượng phải lớn hơn 0!");
+          return;
+        }
+
+        // Check if amount exists
+        const existingIndex = listItems.findIndex(
+          (item) => item.amount === amount,
+        );
+        if (existingIndex > -1) {
+          listItems[existingIndex].quantity += qty;
+        } else {
+          listItems.push({
+            id: Date.now(),
+            amount: amount,
+            quantity: qty,
+          });
+        }
+
+        // Sort by amount
+        listItems.sort((a, b) => a.amount - b.amount);
+
+        // Save
+        saveListData();
+
+        amountInput.value = "";
+        qtyInput.value = "1";
+        amountInput.focus();
+        renderList();
+      }
+
+      function removeFromList(id) {
+        listItems = listItems.filter((item) => item.id !== id);
+        saveListData(); // Save
+        renderList();
+      }
+
+      function resetList() {
+        if (!listItems || listItems.length === 0) {
+          alert("Danh sách đã trống!");
+          return;
+        }
+
+        if (confirm("Bạn có chắc muốn xóa hết danh sách không?")) {
+          // 1. Reset Data
+          listItems = [];
+
+          // 2. Save Data (Wrap in try-catch to be safe)
+          saveListData();
+
+          // 3. Render
+          renderList();
+        }
+      }
+
+      function renderList() {
+        const container = document.getElementById("items-container");
+        const totalEl = document.getElementById("total-envelopes");
+
+        // Explicitly clear content first
+        if (container) container.innerHTML = "";
+
+        if (!listItems || listItems.length === 0) {
+          if (container)
+            container.innerHTML =
+              '<p class="text-center text-gray-400 text-sm italic py-4">Chưa có mệnh giá nào trong danh sách.</p>';
+          if (totalEl) totalEl.innerText = "0";
+          return;
+        }
+
+        let html = "";
+        let totalQty = 0;
+
+        listItems.forEach((item) => {
+          totalQty += item.quantity;
+          html += `
+                    <div class="flex justify-between items-center bg-red-950/50 p-2 rounded text-sm mb-1">
+                        <span class="font-bold text-yellow-400">${formatMoney(item.amount)}</span>
+                        <div class="flex items-center gap-3">
+                            <span class="bg-red-700 px-2 py-0.5 rounded text-white text-xs">x${item.quantity}</span>
+                            <button onclick="removeFromList(${item.id})" class="text-red-400 hover:text-red-200 p-1">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+        });
+
+        if (container) container.innerHTML = html;
+        if (totalEl) totalEl.innerText = totalQty;
+      }
+
+      // --- Core Logic: Spin/Random ---
+      function startSpin() {
+        if (isSpinning) return;
+
+        let finalAmount = 0;
+
+        // Validation & Selection Logic
+        if (currentMode === "range") {
+          const min = parseInt(document.getElementById("min-amount").value);
+          const max = parseInt(document.getElementById("max-amount").value);
+
+          if (min >= max) {
+            alert("Số thấp nhất phải nhỏ hơn số cao nhất!");
+            return;
+          }
+
+          // Logic random range rounded to thousands
+          const range = (max - min) / 1000;
+          const randomStep = Math.floor(Math.random() * (range + 1));
+          finalAmount = min + randomStep * 1000;
+        } else {
+          // List Mode
+          const availableItems = listItems.filter((item) => item.quantity > 0);
+          if (availableItems.length === 0) {
+            alert("Hết lì xì rồi! Vui lòng thêm thêm danh sách.");
+            return;
+          }
+
+          let pool = [];
+          availableItems.forEach((item, index) => {
+            for (let i = 0; i < item.quantity; i++) {
+              pool.push(index);
+            }
+          });
+
+          const randomPoolIndex = Math.floor(Math.random() * pool.length);
+          const selectedItemIndex = pool[randomPoolIndex];
+          const selectedItem = availableItems[selectedItemIndex];
+
+          finalAmount = selectedItem.amount;
+
+          // Decrement logic is handled AFTER animation in showResult
+          window.pendingDecrementId = selectedItem.id;
+        }
+
+        // UI Animation
+        isSpinning = true;
+        const btn = document.getElementById("spin-btn");
+        const envelope = document.querySelector(".envelope");
+
+        btn.disabled = true;
+        btn.innerHTML =
+          '<i class="fas fa-spinner fa-spin mr-2"></i> Đang lắc...';
+        envelope.classList.add("shaking");
+
+        // Sound effect simulation
+        if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 100]);
+
+        // Delay for suspense
+        setTimeout(() => {
+          isSpinning = false;
+          envelope.classList.remove("shaking");
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fas fa-gift mr-2"></i> Rút Lì Xì';
+
+          showResult(finalAmount);
+        }, 1500);
+      }
+
+      function showResult(amount) {
+        const modal = document.getElementById("result-modal");
+        const resultText = document.getElementById("result-amount");
+        const modalContent = document.getElementById("modal-content");
+
+        // Decrement quantity if in List Mode
+        if (currentMode === "list" && window.pendingDecrementId) {
+          const itemIndex = listItems.findIndex(
+            (i) => i.id === window.pendingDecrementId,
+          );
+          if (itemIndex > -1) {
+            listItems[itemIndex].quantity -= 1;
+            if (listItems[itemIndex].quantity <= 0) {
+              listItems.splice(itemIndex, 1);
+            }
+            saveListData(); // Save immediately after randomizing
+            renderList();
+          }
+          window.pendingDecrementId = null;
+        }
+
+        resultText.innerText = formatMoney(amount);
+
+        // FIX: Force inline style to ensure visibility
+        modal.style.display = "flex";
+        modal.classList.remove("hidden");
+
+        // Pop effect
+        modalContent.classList.remove("scale-95");
+        modalContent.classList.add("scale-100");
+
+        // Fire Confetti
+        fireConfetti();
+      }
+
+      function closeModal() {
+        const modal = document.getElementById("result-modal");
+        const modalContent = document.getElementById("modal-content");
+
+        modalContent.classList.remove("scale-100");
+        modalContent.classList.add("scale-95");
+
+        setTimeout(() => {
+          // FIX: Force inline style to hidden
+          modal.style.display = "none";
+          modal.classList.add("hidden");
+        }, 200);
+      }
+
+      // --- Simple Confetti Implementation ---
+      function fireConfetti() {
+        const canvas = document.getElementById("confetti");
+        const ctx = canvas.getContext("2d");
+
+        // FIX: Clear canvas immediately when starting new animation
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const pieces = [];
+        const colors = ["#FFD700", "#FF0000", "#FFFFFF", "#FFA500"];
+
+        for (let i = 0; i < 150; i++) {
+          pieces.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height - canvas.height,
+            w: Math.random() * 10 + 5,
+            h: Math.random() * 10 + 5,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            speed: Math.random() * 5 + 2,
+            angle: Math.random() * 360,
+          });
+        }
+
+        let animationId;
+        function update() {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          let active = false;
+
+          pieces.forEach((p) => {
+            p.y += p.speed;
+            p.angle += 2;
+            if (p.y < canvas.height) active = true;
+
+            ctx.save();
+            ctx.translate(p.x, p.y);
+            ctx.rotate((p.angle * Math.PI) / 180);
+            ctx.fillStyle = p.color;
+            ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+            ctx.restore();
+          });
+
+          if (active) {
+            animationId = requestAnimationFrame(update);
+          } else {
+            // FIX: Ensure clean if natural finish
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+          }
+        }
+        update();
+
+        // Stop after 4 seconds to save battery AND force clear
+        setTimeout(() => {
+          cancelAnimationFrame(animationId);
+          // FIX: Force clear confetti when time is up
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }, 4000);
+      }
+
+      // --- Initialize App ---
+      // We use DOMContentLoaded or window.onload to ensure elements exist
+      window.addEventListener("DOMContentLoaded", init);
+    </script>
+  </body>
+</html>
